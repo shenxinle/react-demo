@@ -1,14 +1,16 @@
 (function () {
 
+/*
+*  model
+*/
 var app = app || {};
 app.model = {};
-// app.model.inputText = '';
 app.model.allCompleted = false;
 app.model.display = 'all';  // ['all', 'active', 'completed']
 app.model.lists = [];
 app.model.lists.push({
     text: 'study angular',
-    completed: true
+    completed: false
 }, {
     text: 'study react',
     completed: false
@@ -66,6 +68,14 @@ var TodoApp = React.createClass({displayName: "TodoApp",
             model: model
         });
     },
+    saveListContent: function (index, value) {
+        var model = this.state.model;
+        model.lists[index].text = value;
+
+        this.setState({
+            model: model
+        });
+    },
     displayWhich: function (which) {
         var model = this.state.model;
         model.display = which;
@@ -87,9 +97,14 @@ var TodoApp = React.createClass({displayName: "TodoApp",
         });
     },
     render: function () {
+        // to TodoMain
+        var lists = this.state.model.lists;
+        var display = this.state.model.display;
+
+        // to TodoFooter
         var activeLength = 0 ;
         var hasCompleted = false;
-        this.state.model.lists.forEach(function (list, index) {
+        lists.forEach(function (list, index) {
             if (!list.completed) {
                 activeLength++;
             } else {
@@ -99,7 +114,7 @@ var TodoApp = React.createClass({displayName: "TodoApp",
         return (
             React.createElement("div", null, 
                 React.createElement(TodoHeader, {model: this.state.model, onToggleAllCompleted: this.toggleAllCompleted, onInsertNewList: this.insertNewList}), 
-                React.createElement(TodoMain, {model: this.state.model, onToggleCompleted: this.toggleCompleted, onDeleteList: this.deleteList}), 
+                React.createElement(TodoMain, {lists: lists, display: display, onToggleCompleted: this.toggleCompleted, onDeleteList: this.deleteList, onSaveListContent: this.saveListContent}), 
                 React.createElement(TodoFooter, {length: activeLength, hasCompleted: hasCompleted, onDisplayWhich: this.displayWhich, onClearCompleted: this.clearCompleted})
             )
         );
@@ -136,7 +151,9 @@ var TodoHeader = React.createClass({displayName: "TodoHeader",
                 React.createElement("label", {onClick: this.toggleAllCompleted}, 
                     React.createElement("i", {className: iClass})
                 ), 
-                React.createElement("input", {type: "text", placeholder: "What needs to be done?", onChange: this.inputTextChange, onKeyUp: this.inputKeyUp, value: this.state.inputText})
+                React.createElement("p", null, 
+                    React.createElement("input", {type: "text", placeholder: "What needs to be done?", onChange: this.inputTextChange, onKeyUp: this.inputKeyUp, value: this.state.inputText})
+                )
             )
         );
     }
@@ -145,7 +162,8 @@ var TodoHeader = React.createClass({displayName: "TodoHeader",
 var TodoMain = React.createClass({displayName: "TodoMain",
     getInitialState: function () {
         return {
-            text: ''
+            lists: this.props.lists,
+            editLiIndex: -1
         };
     },
     toggleCompleted: function (index) {
@@ -154,36 +172,57 @@ var TodoMain = React.createClass({displayName: "TodoMain",
     deleteList: function (index) {
         this.props.onDeleteList(index);
     },
-    toEditMode: function (e) {
+    toEditMode: function (index, e) {
         // console.log(e.target.focus);
         e.target.removeAttribute('disabled');
         e.target.focus();
+        this.setState({
+            editLiIndex: index
+        });
     },
-    saveListContent: function (index, e) {
+    handleChange: function (index, e) {
+        var lists = this.state.lists;
         var value = e.target.value;
+        lists[index].text = value;
+        this.setState({
+            lists: lists
+        });
+    },
+    keyUp: function (index, e) {
+        if (e.nativeEvent.keyCode === 13) {
+            this.finishEditMode(index, e);
+        }
+    },
+    finishEditMode: function (index, e) {
+        var lists = this.state.lists;
+        var value = e.target.value;
+        e.target.setAttribute('disabled', true);
+
         this.props.onSaveListContent(index, value);
+
+        lists[index].text = value;
+        this.setState({
+            lists: lists,
+            editLiIndex: -1
+        });
     },
     render: function () {
         var that = this;
-        var display = this.props.model.display;
-        var listsHTML = this.props.model.lists.filter(function (list, index, lists) {
-            if (display === 'all') {
-                return true;
-            } else if (display === 'active' && !list.completed) {
-                return true;
-            } else if (display === 'completed' && list.completed) {
-                return true;
+        var display = this.props.display;
+        var listsHTML = this.state.lists.map(function (list, index, lists) {
+            var liClass = (list.completed ? 'completed' : '') + (that.state.editLiIndex === index ? ' edit' : '');
+            if ((display === 'active' && list.completed) || (display === 'completed' && !list.completed)) {
+                liClass += ' hide';
             }
-            return false;
-        })
-        .map(function (list, index, lists) {
             var iClass = 'icon iconfont ' + (list.completed ? 'icon-checkbox-checked' : 'icon-checkbox-normal');
             return (
-                React.createElement("li", {className: list.completed ? 'completed' : ''}, 
+                React.createElement("li", {className: liClass}, 
                     React.createElement("label", {onClick: that.toggleCompleted.bind(that, index)}, 
                         React.createElement("i", {className: iClass})
                     ), 
-                    React.createElement("input", {type: "text", disabled: true, value: list.text, onDoubleClick: that.toEditMode, onBlur: that.saveListContent.bind(that, index)}), 
+                    React.createElement("p", null, 
+                        React.createElement("input", {type: "text", disabled: true, value: list.text, onDoubleClick: that.toEditMode.bind(that, index), onChange: that.handleChange.bind(that, index), onBlur: that.finishEditMode.bind(that, index), onKeyUp: that.keyUp.bind(that, index)})
+                    ), 
                     React.createElement("i", {className: "icon iconfont delete", onClick: that.deleteList.bind(that, index)}, "")
                 )
             );
@@ -221,7 +260,6 @@ var TodoFooter = React.createClass({displayName: "TodoFooter",
         );
     }
 });
-
 
 ReactDOM.render(React.createElement(TodoApp, {model: app.model}), document.getElementById('todoapp'));
 

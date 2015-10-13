@@ -27,11 +27,18 @@ body {
                 font-size: 20px;
                 cursor: pointer;
             }
-            > input[type="text"] {
-                width: 100%;
-                height: $itemHeight;
-                padding: 8px 8px 8px $itemHeight;
-                font-size: 20px;
+            p {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: $itemHeight - 8px;
+                right: 0;
+                input[type="text"] {
+                    width: 100%;
+                    height: 100%;
+                    padding: 8px;
+                    font-size: 20px;
+                }
             }
         }
         header {
@@ -46,10 +53,6 @@ body {
                 input {
                     color: #333;
                 }
-                &.completed input {
-                    color: #888;
-                    text-decoration: line-through;
-                }
                 .icon.delete {
                     position: absolute;
                     top: 20px;
@@ -58,9 +61,29 @@ body {
                     cursor: pointer;
                     display: none;
                 }
+                &.completed p input {
+                    color: #888;
+                    text-decoration: line-through;
+                }
                 &:hover {
                     .icon.delete {
                         display: inline;
+                    }
+                }
+                &.edit {
+                    label {
+                        display: none;
+                    }
+                    p input {
+                        border: 1px solid #ccc;
+                        box-shadow: 0 0 8px #ccc inset;
+                        color: #333;
+                        text-decoration: none;
+                    }
+                    &:hover {
+                        .icon.delete {
+                            display: none;
+                        }
                     }
                 }
             }
