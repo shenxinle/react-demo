@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>react-todo</title>
+    <!-- <link rel="icon" href="favicon.ico"> -->
+    <link rel="stylesheet" href="style/iconfont/iconfont.css">
+    <link rel="stylesheet" href="style/normalize.css">
+    <link rel="stylesheet" href="style/index.css">
+    <!--[if lt IE 9]>
+        <script src="//cdn.bootcss.com/es5-shim/4.1.14/es5-shim.min.js"></script>
+        <script src="//cdn.bootcss.com/es5-shim/4.1.14/es5-sham.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">todos</h1>
+        <div id="todoapp">
+            <header>
+                <label>
+                    <i class="icon iconfont icon-checkbox-normal"></i>
+                </label>
+                <input type="text" placeholder="What needs to be done?" />
+            </header>
+            <main>
+                <ul>
+                    <li>
+                        <label>
+                            <i class="icon iconfont icon-checkbox-normal"></i>
+                        </label>
+                        <input type="text" value="study react" readonly />
+                        <i class="icon iconfont delete">&#xe600;</i>
+                    </li>
+                    <li class="completed">
+                        <label>
+                            <i class="icon iconfont icon-checkbox-checked"></i>
+                        </label>
+                        <input type="text" value="study react" readonly />
+                        <i class="icon iconfont delete">&#xe600;</i>
+                    </li>
+                </ul>
+            </main>
+            <footer>
+                <span>2 item left</span>
+                <div class="select">
+                    <button class="all">All</button>
+                    <button class="active">Active</button>
+                    <button class="Completed">Completed</button>
+                </div>
+                <button class="clear-completed">Clear Completed</button>
+            </footer>
+        </div>
+    </div>
+<!-- <script src="//cdn.bootcss.com/react/0.14.0/react.min.js"></script>
+<script src="//cdn.bootcss.com/react/0.14.0/react-dom.min.js"></script> -->
+<script src="../react-0.14.0/build/react.min.js"></script>
+<script src="../react-0.14.0/build/react-dom.min.js"></script>
+<script src="script/dist/index.js"></script>
+</body>
+</html>
