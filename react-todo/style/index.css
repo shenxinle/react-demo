@@ -9,7 +9,10 @@ body {
     font-size: 60px;
     color: #ead7d7; }
   .container #todoapp {
-    background-color: #fff; }
+    margin-top: 20px;
+    border-bottom: #eee;
+    background-color: #fff;
+    box-shadow: 0 3px 4px 0 #ccc; }
     .container #todoapp .header.li, .container #todoapp header, .container #todoapp main li {
       position: relative;
       height: 60px;
@@ -35,8 +38,10 @@ body {
           height: 100%;
           padding: 8px;
           font-size: 20px; }
-    .container #todoapp header label .icon {
-      font-size: 1em; }
+    .container #todoapp header {
+      box-shadow: 0 -1px 2px 0 #eee inset; }
+      .container #todoapp header label .icon {
+        font-size: 1em; }
     .container #todoapp main li input {
       color: #333; }
     .container #todoapp main li .icon.delete {

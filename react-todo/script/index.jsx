@@ -3,18 +3,27 @@
 /*
 *  model
 */
-var app = app || {};
-app.model = {};
-app.model.allCompleted = false;
-app.model.display = 'all';  // ['all', 'active', 'completed']
-app.model.lists = [];
-app.model.lists.push({
-    text: 'study angular',
-    completed: false
-}, {
-    text: 'study react',
-    completed: false
-})
+var app = {};
+if (window.localStorage.getItem('app')) {
+    app = JSON.parse(window.localStorage.getItem('app'));
+} else {
+    app.model = {};
+    app.model.allCompleted = false;
+    app.model.display = 'all';  // ['all', 'active', 'completed']
+    app.model.lists = [];
+    app.model.lists.push({
+        text: 'default item1',
+        completed: false
+    }, {
+        text: 'default item2',
+        completed: false
+    });
+}
+
+// localStorage
+window.onunload = function () {
+    window.localStorage.setItem('app', JSON.stringify(app));
+}
 
 var TodoApp = React.createClass({
     getInitialState: function () {
@@ -22,6 +31,9 @@ var TodoApp = React.createClass({
         return {
             model: model
         };
+    },
+    componentDidUpdate: function () {
+        app.model = this.state.model;
     },
     toggleAllCompleted: function () {
         var model = this.state.model;
@@ -137,7 +149,8 @@ var TodoHeader = React.createClass({
         });
     },
     inputKeyUp: function (e) {
-        if (e.nativeEvent.keyCode === 13) {
+        var keyCode = e.nativeEvent.keyCode || e.nativeEvent.which;
+        if (keyCode === 13) {
             this.setState({
                 inputText: ''
             });
@@ -162,7 +175,7 @@ var TodoHeader = React.createClass({
 var TodoMain = React.createClass({
     getInitialState: function () {
         return {
-            lists: this.props.lists,
+            // lists: this.props.lists,
             editLiIndex: -1
         };
     },
@@ -181,35 +194,38 @@ var TodoMain = React.createClass({
         });
     },
     handleChange: function (index, e) {
-        var lists = this.state.lists;
+        // var lists = this.state.lists;
         var value = e.target.value;
-        lists[index].text = value;
-        this.setState({
-            lists: lists
-        });
+
+        this.props.onSaveListContent(index, value);
+        // lists[index].text = value;
+        // this.setState({
+        //     lists: lists
+        // });
     },
     keyUp: function (index, e) {
-        if (e.nativeEvent.keyCode === 13) {
+        var keyCode = e.nativeEvent.keyCode || e.nativeEvent.which;
+        if (keyCode === 13) {
             this.finishEditMode(index, e);
         }
     },
     finishEditMode: function (index, e) {
-        var lists = this.state.lists;
+        // var lists = this.state.lists;
         var value = e.target.value;
         e.target.setAttribute('disabled', true);
 
         this.props.onSaveListContent(index, value);
 
-        lists[index].text = value;
+        // lists[index].text = value;
         this.setState({
-            lists: lists,
+            // lists: lists,
             editLiIndex: -1
         });
     },
     render: function () {
         var that = this;
         var display = this.props.display;
-        var listsHTML = this.state.lists.map(function (list, index, lists) {
+        var listsHTML = this.props.lists.map(function (list, index, lists) {
             var liClass = (list.completed ? 'completed' : '') + (that.state.editLiIndex === index ? ' edit' : '');
             if ((display === 'active' && list.completed) || (display === 'completed' && !list.completed)) {
                 liClass += ' hide';
